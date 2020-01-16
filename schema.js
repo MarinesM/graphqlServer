@@ -52,6 +52,54 @@ const RootQuery = new GraphQLObjectType({
     }
 });
 
+
+const mutation = new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+        addCustomer: {
+            type: CustomerType,
+            args: {
+                name: {type: new GraphQLNonNull(GraphQLString)},
+                email: {type: new GraphQLNonNull(GraphQLString)},
+                age: {type: new GraphQLNonNull(GraphQLInt)},
+            },
+            async resolve(parentValue, args){
+                response = await axios.post('http://localhost:3000/customers', {
+                    name: args.name,
+                    email: args.email,
+                    age: args.age
+                })
+                return response.data;
+            }
+        },
+        deleteCustomer: {
+            type: CustomerType,
+            args: {
+                id: {type: new GraphQLNonNull(GraphQLString)}
+            },
+            async resolve(parentValue, args){
+                response = await axios.delete('http://localhost:3000/customers/' + args.id)
+                return response.data;
+            }
+        },
+        editCustomer: {
+            type: CustomerType,
+            args: {
+                id: {type: new GraphQLNonNull(GraphQLString)},
+                name: {type: GraphQLString},
+                email: {type: GraphQLString},
+                age: {type: GraphQLInt}
+            },
+            async resolve(parentValue, args){
+                response = await axios.patch('http://localhost:3000/customers/' + args.id, args)
+                return response.data;
+            }
+        },
+    }
+});
+
+
 module.exports = new GraphQLSchema({
-    query: RootQuery
+    query: RootQuery,
+    mutation
 });
